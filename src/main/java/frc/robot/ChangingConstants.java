@@ -12,25 +12,26 @@ public class ChangingConstants {
         
         public static final double kPTurning = 0.5; //should be good to go 
 
-        public static final double kFLabsEncoderOffsetRad = -0.254;
+        public static final double kFLabsEncoderOffsetRad = -0.254; //maybe use the ctre generator to get vals
         public static final double kFRabsEncoderOffsetRad = -1.252;
         public static final double kBLabsEncoderOffsetRad = -1.816;
         public static final double kBRabsEncoderOffsetRad = -4.811;
         
-        public static final double kPhysicalMaxSpeedMetersPerSecond = 5;
-        public static final double kPhysicalMaxAngularSpeedRadiansPerSecond = 2 * 2 * Math.PI;
+        public static final double kPhysicalMaxSpeedMetersPerSecond = 4.5;
+        public static final double kPhysicalMaxAngularSpeedRadiansPerSecond = 4 * Math.PI;
         
-        //Teleop speeds:
+            //Teleop speeds:
         public static final double kTeleDriveMaxSpeedMetersPerSecond = 
                                     kPhysicalMaxSpeedMetersPerSecond / 4;
 
         public static final double kTeleDriveMaxAngularSpeedRadiansPerSecond =
                                     kPhysicalMaxAngularSpeedRadiansPerSecond / 4;
 
-        public static final double kTeleDriveMaxAccelerationUnitsPerSecond = 3;
+        public static final double kTeleDriveMaxAccelerationUnitsPerSecond = 4;
         public static final double kTeleDriveMaxAngularAccelerationUnitsPerSecond = 3;
     }
     public static final class AutoConstants {
+            //Auto speeds:
         public static final double kMaxSpeedMetersPerSecond = 
                                     DriveConstants.kPhysicalMaxSpeedMetersPerSecond / 4;
         public static final double kMaxAngularSpeedRadiansPerSecond = 

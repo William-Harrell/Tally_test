@@ -5,22 +5,26 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.ChangingConstants;
+import frc.robot.StaticConstants;
+import frc.robot.subsystems.Swerve;
+
 import java.util.function.Supplier;
-import edu.wpi.first.wpilibj.SlewRateLimiter;
-import edu.wpi.first.wpilibj.kinematics.ChassisSpeeds;
-import edu.wpi.first.wpilibj.kinematics.SwerveModuleState;
+import edu.wpi.first.wpilibj.SlewRateLimiter; // why no work?
+import edu.wpi.first.wpilibj.kinematics.ChassisSpeeds; //def called something else now
+import edu.wpi.first.wpilibj.kinematics.SwerveModuleState; //def called something else now
 
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
 public class SwerveTeleop extends Command {
   
-  private final SwerveSubsystem swerveSubsystem;
+  private final Swerve swerveSubsystem;
   private final Supplier<Double> xSpdFunction, ySpdFunction, turningSpdFunction;
   private final Supplier<Boolean> fieldOrientedFunction;
   private final SlewRateLimiter xLimiter, yLimiter, turningLimiter;
 
         /** Creates a new SwerveTeleop. */
-  public SwerveTeleop(SwerveSubsystem swerveSubsystem,
+  public SwerveTeleop(Swerve swerveSubsystem,
       Supplier<Double> xSpdFunction, Supplier<Double> ySpdFunction, 
       Supplier<Double> turningSpdFunction, Supplier<Boolean> fieldOrientedFunction) {
         // Use addRequirements() here to declare subsystem dependencies.
@@ -51,15 +55,15 @@ public class SwerveTeleop extends Command {
     double turningSpeed = turningSpdFunction.get();
 
       // 2. Apply deadband
-    xSpeed = Math.abs(xSpeed) > OIConstants.kDeadband ? xSpeed : 0.0;
-    ySpeed = Math.abs(ySpeed) > OIConstants.kDeadband ? ySpeed : 0.0;
-    turningSpeed = Math.abs(turningSpeed) > OIConstants.kDeadband ? turningSpeed : 0.0;
+    xSpeed = Math.abs(xSpeed) > StaticConstants.OperatorConstants.kDeadband ? xSpeed : 0.0;
+    ySpeed = Math.abs(ySpeed) > StaticConstants.OperatorConstants.kDeadband ? ySpeed : 0.0;
+    turningSpeed = Math.abs(turningSpeed) > StaticConstants.OperatorConstants.kDeadband ? turningSpeed : 0.0;
 
       // 3. Make the driving smoother
-    xSpeed = xLimiter.calculate(xSpeed) * DriveConstants.kTeleDriveMaxSpeedMetersPerSecond;
-    ySpeed = yLimiter.calculate(ySpeed) * DriveConstants.kTeleDriveMaxSpeedMetersPerSecond;
+    xSpeed = xLimiter.calculate(xSpeed) * ChangingConstants.DriveConstants.kTeleDriveMaxSpeedMetersPerSecond;
+    ySpeed = yLimiter.calculate(ySpeed) * ChangingConstants.DriveConstants.kTeleDriveMaxSpeedMetersPerSecond;
     turningSpeed = turningLimiter.calculate(turningSpeed)
-                * DriveConstants.kTeleDriveMaxAngularSpeedRadiansPerSecond;
+                * ChangingConstants.DriveConstants.kTeleDriveMaxAngularSpeedRadiansPerSecond;
 
       // 4. Construct desired chassis speeds
     ChassisSpeeds chassisSpeeds;
