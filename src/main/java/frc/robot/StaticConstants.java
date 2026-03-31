@@ -44,15 +44,17 @@ public final class StaticConstants {
 
         public static final double kWheelDiameterMeters = Units.inchesToMeters(4);
         public static final double kDriveMotorGearRatio = 1 / 5.8462; //find on SDS website
-        public static final double kTurningMotorGearRatio = 1 / 18.0; //find on SDS website
+        public static final double kSteerMotorGearRatio = 1 / 18.0; //find on SDS website
         public static final double kDriveEncoderRot2Meter = kDriveMotorGearRatio * Math.PI * kWheelDiameterMeters;
-        public static final double kTurningEncoderRot2Rad = kTurningMotorGearRatio * 2 * Math.PI;
+        public static final double kSteerEncoderRot2Rad = kSteerMotorGearRatio * 2 * Math.PI;
         public static final double kDriveEncoderRPM2MeterPerSec = kDriveEncoderRot2Meter / 60;
-        public static final double kTurningEncoderRPM2RadPerSec = kTurningEncoderRot2Rad / 60;
+        public static final double kSteerEncoderRPM2RadPerSec = kSteerEncoderRot2Rad / 60;
       }
   }
 
   public static final class MotorConstants {
+    // Minimum speed to move in m/s
+    public static final double kMinSpeed = 0.001;
 
     public static final class CanIDs {
       // Random CAN IDs TODO: fill in

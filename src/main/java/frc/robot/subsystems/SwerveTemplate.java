@@ -37,12 +37,10 @@ public class SwerveTemplate extends SubsystemBase {
     driveMotor = new TalonFX(driveMotorId);
       // Configure the TalonFX for basic use
       TalonFXConfiguration configsDrive = new TalonFXConfiguration();
-      // This TalonFX should be configured with a kP of 1, a kI of 0, a kD of 10, and a kV of 2 on slot 0
-              // got from TalonFX configuration thingy, could be entirely wrong
-      configsDrive.Slot0.kP = 1;
-      configsDrive.Slot0.kI = 0;
-      configsDrive.Slot0.kD = 10;
-      configsDrive.Slot0.kV = 2;
+      configsDrive.Slot0.kP = ChangingConstants.DriveConstants.kDriveP;
+      configsDrive.Slot0.kI = ChangingConstants.DriveConstants.kDriveI;
+      configsDrive.Slot0.kD = ChangingConstants.DriveConstants.kDriveD;
+      configsDrive.Slot0.kV = ChangingConstants.DriveConstants.kDriveV;
       configsDrive.MotorOutput.Inverted = driveMotorReversed ? 
           InvertedValue.Clockwise_Positive : InvertedValue.CounterClockwise_Positive;
       configsDrive.CurrentLimits.StatorCurrentLimit = ChangingConstants.CurrentLimits.kDriveStatorCurrentLimit;
@@ -55,27 +53,28 @@ public class SwerveTemplate extends SubsystemBase {
 
     steerMotor = new TalonFX(steerMotorId);
       // Configure the TalonFX for basic use
-      TalonFXConfiguration turningConfigs = new TalonFXConfiguration();
-      // This TalonFX should be configured with a kP of 1, a kI of 0, a kD of 10, and a kV of 2 on slot 0
-              // got from TalonFX configuration thingy, could be entirely wrong
-        turningConfigs.Slot0.kP = 1;
-        turningConfigs.Slot0.kI = 0;
-        turningConfigs.Slot0.kD = 10;
-        turningConfigs.Slot0.kV = 2;
-        turningConfigs.MotorOutput.Inverted = steerMotorReversed ? 
+      TalonFXConfiguration steerConfigs = new TalonFXConfiguration();
+        steerConfigs.Slot0.kP = ChangingConstants.DriveConstants.kSteerP;
+        steerConfigs.Slot0.kI = ChangingConstants.DriveConstants.kSteerI;
+        steerConfigs.Slot0.kD = ChangingConstants.DriveConstants.kSteerD;
+        steerConfigs.Slot0.kV = ChangingConstants.DriveConstants.kSteerV;
+        steerConfigs.MotorOutput.Inverted = steerMotorReversed ? 
             InvertedValue.Clockwise_Positive : InvertedValue.CounterClockwise_Positive;
-        turningConfigs.CurrentLimits.StatorCurrentLimit = ChangingConstants.CurrentLimits.kTurningStatorCurrentLimit;
-        turningConfigs.CurrentLimits.StatorCurrentLimitEnable = ChangingConstants.CurrentLimits.kTurningStatorLimit;
-        turningConfigs.CurrentLimits.SupplyCurrentLimit = ChangingConstants.CurrentLimits.kTurningSupplyCurrentLimit;
-        turningConfigs.CurrentLimits.SupplyCurrentLimitEnable = ChangingConstants.CurrentLimits.kTurningSupplyLimit;
-      // Write these configs to the turning motor
-      steerMotor.getConfigurator().apply(turningConfigs);
+        steerConfigs.CurrentLimits.StatorCurrentLimit = ChangingConstants.CurrentLimits.kSteerStatorCurrentLimit;
+        steerConfigs.CurrentLimits.StatorCurrentLimitEnable = ChangingConstants.CurrentLimits.kSteerStatorLimit;
+        steerConfigs.CurrentLimits.SupplyCurrentLimit = ChangingConstants.CurrentLimits.kSteerSupplyCurrentLimit;
+        steerConfigs.CurrentLimits.SupplyCurrentLimitEnable = ChangingConstants.CurrentLimits.kSteerSupplyLimit;
+      // Write these configs to the steer motor
+      steerMotor.getConfigurator().apply(steerConfigs);
 
     this.absEncoderOffsetRad = absEncoderOffset;
     this.absEncoderReversed = absEncoderReversed;
     absEncoder = new CANcoder(absEncoderId);
 
-    steerPidController = new PIDController(ChangingConstants.DriveConstants.kPTurning, 0, 0);
+    steerPidController = new PIDController(
+      ChangingConstants.DriveConstants.PIDController.kPSteer, 
+      ChangingConstants.DriveConstants.PIDController.kISteer, 
+      ChangingConstants.DriveConstants.PIDController.kDSteer);
     steerPidController.enableContinuousInput(-Math.PI, Math.PI);
 
     resetEncoders();
@@ -89,7 +88,7 @@ public class SwerveTemplate extends SubsystemBase {
 
   public double getSteerPosition() {
       var SteerPosition = steerMotor.getPosition().getValueAsDouble() *
-      StaticConstants.ModuleConstants.PhysicalConstants.kTurningEncoderRot2Rad;
+      StaticConstants.ModuleConstants.PhysicalConstants.kSteerEncoderRot2Rad;
     return SteerPosition;
   }
 
@@ -101,7 +100,7 @@ public class SwerveTemplate extends SubsystemBase {
 
   public double getSteerVelocity() {
       var SteerVelocity = steerMotor.getVelocity().getValueAsDouble() *
-      StaticConstants.ModuleConstants.PhysicalConstants.kTurningEncoderRPM2RadPerSec;
+      StaticConstants.ModuleConstants.PhysicalConstants.kSteerEncoderRPM2RadPerSec;
     return SteerVelocity;
   }
 
@@ -122,7 +121,7 @@ public class SwerveTemplate extends SubsystemBase {
   }
 
   public void setDesiredState(SwerveModuleState desiredState) {
-    if (Math.abs(desiredState.speedMetersPerSecond) < 0.001) {
+    if (Math.abs(desiredState.speedMetersPerSecond) < StaticConstants.MotorConstants.kMinSpeed) {
       stop();
       return;
     }

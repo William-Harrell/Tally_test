@@ -10,15 +10,36 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile;
 public class ChangingConstants {
     public static final class DriveConstants {
         
-        public static final double kPTurning = 0.5; //should be good to go 
-
+        public static final class PIDController {
+                //Steering function PID values to get to correct angle:
+            public static final double kPSteer = 0.5;
+            public static final double kISteer = 0;
+            public static final double kDSteer = 0;
+        }
             //maybe use the ctre generator to get vals
         public static final double kFLabsEncoderOffsetRad = -0.254; 
         public static final double kFRabsEncoderOffsetRad = -1.252;
         public static final double kBLabsEncoderOffsetRad = -1.816;
         public static final double kBRabsEncoderOffsetRad = -4.811;
         
-        
+            // Drive Motor PID values:
+                // This TalonFX should be configured with a kP of 1, a kI of 0, 
+                    //a kD of 10, and a kV of 2 on slot 0
+                // got from TalonFX configuration thingy, could be entirely wrong
+        public static final double kDriveP = 1;
+        public static final double kDriveI = 0;
+        public static final double kDriveD = 10;
+        public static final double kDriveV = 2;
+
+            // Steer Motor PID values:
+                // This TalonFX should be configured with a kP of 1, a kI of 0, 
+                    //a kD of 10, and a kV of 2 on slot 0
+                // got from TalonFX configuration thingy, could be entirely wrong
+        public static final double kSteerP = 1;
+        public static final double kSteerI = 0;
+        public static final double kSteerD = 10;
+        public static final double kSteerV = 2;
+
             //Teleop speeds:
         public static final double kTeleDriveMaxSpeedMetersPerSecond = 
             StaticConstants.ModuleConstants.PhysicalConstants.kPhysicalMaxSpeedMetersPerSecond / 4;
@@ -36,11 +57,11 @@ public class ChangingConstants {
         public static final boolean kDriveStatorLimit = true;
         public static final double kDriveSupplyCurrentLimit = 70;
         public static final boolean kDriveSupplyLimit = true;
-            // All Turning motors
-        public static final double kTurningStatorCurrentLimit = 60;
-        public static final boolean kTurningStatorLimit = true;
-        public static final double kTurningSupplyCurrentLimit = 50;
-        public static final boolean kTurningSupplyLimit = true;
+            // All Steer motors
+        public static final double kSteerStatorCurrentLimit = 60;
+        public static final boolean kSteerStatorLimit = true;
+        public static final double kSteerSupplyCurrentLimit = 50;
+        public static final boolean kSteerSupplyLimit = true;
     }
 
     public static final class AutoConstants {
