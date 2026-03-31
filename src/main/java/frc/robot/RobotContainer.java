@@ -4,10 +4,9 @@
 
 package frc.robot;
 
-import frc.robot.StaticConstants.OperatorConstants;
-import frc.robot.commands.Autos;
-import frc.robot.commands.ExampleCommand;
-import frc.robot.subsystems.ExampleSubsystem;
+import frc.robot.commands.SwerveTeleop;
+import frc.robot.commands.zeroHeading_hotfix;
+import frc.robot.subsystems.Swerve;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -22,19 +21,19 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
  */
 public class RobotContainer {
   // The robot's subsystems and commands are defined here...
-  private final SwerveSubsystem swerveSubsystem = new SwerveSubsystem();
+  private final Swerve swerveSubsystem = new Swerve();
 
-  private final Joystick driverJoytick = new Joystick(OIConstants.kDriverControllerPort);
+  private final Joystick driverJoytick = new Joystick(StaticConstants.ControllerConstants.kDriverControllerPort);
 
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
-            swerveSubsystem.setDefaultCommand(new SwerveJoystickCmd(
+            swerveSubsystem.setDefaultCommand(new SwerveTeleop(
                 swerveSubsystem,
-                () -> -driverJoytick.getRawAxis(OIConstants.kDriverYAxis),
-                () -> driverJoytick.getRawAxis(OIConstants.kDriverXAxis),
-                () -> driverJoytick.getRawAxis(OIConstants.kDriverRotAxis),
-                () -> !driverJoytick.getRawButton(OIConstants.kDriverFieldOrientedButtonIdx)));
+                () -> -driverJoytick.getRawAxis(StaticConstants.ControllerConstants.kDriverYAxis),
+                () -> driverJoytick.getRawAxis(StaticConstants.ControllerConstants.kDriverXAxis),
+                () -> driverJoytick.getRawAxis(StaticConstants.ControllerConstants.kDriverRotAxis),
+                () -> !driverJoytick.getRawButton(StaticConstants.ControllerConstants.kDriverFieldOrientedButtonIdx)));
 
     // Configure the trigger bindings
     configureBindings();
@@ -50,7 +49,7 @@ public class RobotContainer {
    * joysticks}.
    */
   private void configureBindings() {
-    new JoystickButton(driverJoytick, 2).whenPressed(() -> swerveSubsystem.zeroHeading());
+    new JoystickButton(driverJoytick, 2).onTrue(new zeroHeading_hotfix());
   }
 
   /**
@@ -60,6 +59,6 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
     // An example command will be run in autonomous
-    return Autos.exampleAuto(m_exampleSubsystem);
+    return null;
   }
 }

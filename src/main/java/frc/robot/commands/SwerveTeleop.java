@@ -8,11 +8,10 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.ChangingConstants;
 import frc.robot.StaticConstants;
 import frc.robot.subsystems.Swerve;
-
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.math.filter.SlewRateLimiter;
 import java.util.function.Supplier;
-import edu.wpi.first.wpilibj.SlewRateLimiter; // why no work?
-import edu.wpi.first.wpilibj.kinematics.ChassisSpeeds; //def called something else now
-import edu.wpi.first.wpilibj.kinematics.SwerveModuleState; //def called something else now
 
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
@@ -33,9 +32,9 @@ public class SwerveTeleop extends Command {
     this.ySpdFunction = ySpdFunction;
     this.turningSpdFunction = turningSpdFunction;
     this.fieldOrientedFunction = fieldOrientedFunction;
-    this.xLimiter = new SlewRateLimiter(DriveConstants.kTeleDriveMaxAccelerationUnitsPerSecond);
-    this.yLimiter = new SlewRateLimiter(DriveConstants.kTeleDriveMaxAccelerationUnitsPerSecond);
-    this.turningLimiter = new SlewRateLimiter(DriveConstants.kTeleDriveMaxAngularAccelerationUnitsPerSecond);
+    this.xLimiter = new SlewRateLimiter(ChangingConstants.DriveConstants.kTeleDriveMaxAccelerationUnitsPerSecond);
+    this.yLimiter = new SlewRateLimiter(ChangingConstants.DriveConstants.kTeleDriveMaxAccelerationUnitsPerSecond);
+    this.turningLimiter = new SlewRateLimiter(ChangingConstants.DriveConstants.kTeleDriveMaxAngularAccelerationUnitsPerSecond);
         addRequirements(swerveSubsystem);
     }
   
@@ -55,9 +54,9 @@ public class SwerveTeleop extends Command {
     double turningSpeed = turningSpdFunction.get();
 
       // 2. Apply deadband
-    xSpeed = Math.abs(xSpeed) > StaticConstants.OperatorConstants.kDeadband ? xSpeed : 0.0;
-    ySpeed = Math.abs(ySpeed) > StaticConstants.OperatorConstants.kDeadband ? ySpeed : 0.0;
-    turningSpeed = Math.abs(turningSpeed) > StaticConstants.OperatorConstants.kDeadband ? turningSpeed : 0.0;
+    xSpeed = Math.abs(xSpeed) > StaticConstants.ControllerConstants.kDeadband ? xSpeed : 0.0;
+    ySpeed = Math.abs(ySpeed) > StaticConstants.ControllerConstants.kDeadband ? ySpeed : 0.0;
+    turningSpeed = Math.abs(turningSpeed) > StaticConstants.ControllerConstants.kDeadband ? turningSpeed : 0.0;
 
       // 3. Make the driving smoother
     xSpeed = xLimiter.calculate(xSpeed) * ChangingConstants.DriveConstants.kTeleDriveMaxSpeedMetersPerSecond;
@@ -77,7 +76,8 @@ public class SwerveTeleop extends Command {
     }
 
       // 5. Convert chassis speeds to individual module states
-    SwerveModuleState[] moduleStates = DriveConstants.kDriveKinematics.toSwerveModuleStates(chassisSpeeds);
+    SwerveModuleState[] moduleStates = 
+    StaticConstants.ModuleConstants.kDriveKinematics.toSwerveModuleStates(chassisSpeeds);
 
       // 6. Output each module states to wheels
     swerveSubsystem.setModuleStates(moduleStates);

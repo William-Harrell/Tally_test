@@ -4,47 +4,35 @@
 
 package frc.robot.subsystems;
 
-// need to import falcons and intialize them below 
-// (chaning from sparkmaxes)
-
-import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.controls.PositionVoltage;
-import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
-
+import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.ChangingConstants;
 import frc.robot.StaticConstants;
-import frc.robot.StaticConstants.ModuleConstants;
 
 public class SwerveTemplate extends SubsystemBase {
   
       // naming
     private final TalonFX driveMotor;
-    private final TalonFX turningMotor;
+    private final TalonFX steerMotor;
+    private final CANcoder absEncoder;
 
-    private final PIDController turningPidController;
+    private final PIDController steerPidController;
 
-    private final CANcoder absoluteEncoder;
-    private final boolean absoluteEncoderReversed;
-    private final double absoluteEncoderOffsetRad;
+    private final boolean absEncoderReversed;
+    private final double absEncoderOffsetRad;
 
   /** Creates a new SwerveTemplate. */
-  public SwerveTemplate(int driveMotorId, int turningMotorId, boolean driveMotorReversed, 
-            boolean turningMotorReversed, int absoluteEncoderId, double absoluteEncoderOffset, 
-            boolean absoluteEncoderReversed) {
-
-    this.absoluteEncoderOffsetRad = absoluteEncoderOffset;
-    this.absoluteEncoderReversed = absoluteEncoderReversed;
-    absoluteEncoder = new CANcoder(absoluteEncoderId);
+  public SwerveTemplate(int driveMotorId, int steerMotorId, int absEncoderId,
+      boolean driveMotorReversed, boolean steerMotorReversed, boolean absEncoderReversed, 
+      double absEncoderOffset) {
 
     driveMotor = new TalonFX(driveMotorId);
       // Configure the TalonFX for basic use
@@ -57,11 +45,15 @@ public class SwerveTemplate extends SubsystemBase {
       configsDrive.Slot0.kV = 2;
       configsDrive.MotorOutput.Inverted = driveMotorReversed ? 
           InvertedValue.Clockwise_Positive : InvertedValue.CounterClockwise_Positive;
+      configsDrive.CurrentLimits.StatorCurrentLimit = ChangingConstants.CurrentLimits.kDriveStatorCurrentLimit;
+      configsDrive.CurrentLimits.StatorCurrentLimitEnable = ChangingConstants.CurrentLimits.kDriveStatorLimit;
+      configsDrive.CurrentLimits.SupplyCurrentLimit = ChangingConstants.CurrentLimits.kDriveSupplyCurrentLimit;
+      configsDrive.CurrentLimits.SupplyCurrentLimitEnable = ChangingConstants.CurrentLimits.kDriveSupplyLimit;
       // Write these configs to the drive motor
       driveMotor.getConfigurator().apply(configsDrive);
 
 
-    turningMotor = new TalonFX(turningMotorId);
+    steerMotor = new TalonFX(steerMotorId);
       // Configure the TalonFX for basic use
       TalonFXConfiguration turningConfigs = new TalonFXConfiguration();
       // This TalonFX should be configured with a kP of 1, a kI of 0, a kD of 10, and a kV of 2 on slot 0
@@ -70,76 +62,96 @@ public class SwerveTemplate extends SubsystemBase {
         turningConfigs.Slot0.kI = 0;
         turningConfigs.Slot0.kD = 10;
         turningConfigs.Slot0.kV = 2;
-        turningConfigs.MotorOutput.Inverted = turningMotorReversed ? 
+        turningConfigs.MotorOutput.Inverted = steerMotorReversed ? 
             InvertedValue.Clockwise_Positive : InvertedValue.CounterClockwise_Positive;
+        turningConfigs.CurrentLimits.StatorCurrentLimit = ChangingConstants.CurrentLimits.kTurningStatorCurrentLimit;
+        turningConfigs.CurrentLimits.StatorCurrentLimitEnable = ChangingConstants.CurrentLimits.kTurningStatorLimit;
+        turningConfigs.CurrentLimits.SupplyCurrentLimit = ChangingConstants.CurrentLimits.kTurningSupplyCurrentLimit;
+        turningConfigs.CurrentLimits.SupplyCurrentLimitEnable = ChangingConstants.CurrentLimits.kTurningSupplyLimit;
       // Write these configs to the turning motor
-      turningMotor.getConfigurator().apply(turningConfigs);
+      steerMotor.getConfigurator().apply(turningConfigs);
 
+    this.absEncoderOffsetRad = absEncoderOffset;
+    this.absEncoderReversed = absEncoderReversed;
+    absEncoder = new CANcoder(absEncoderId);
 
-    driveEncoder = driveMotor.getEncoder();
-    turningEncoder = turningMotor.getEncoder();
-
-    driveEncoder.setPositionConversionFactor(StaticConstants.ModuleConstants.PhysicalConstants.kDriveEncoderRot2Meter);
-    driveEncoder.setVelocityConversionFactor(StaticConstants.ModuleConstants.PhysicalConstants.kDriveEncoderRPM2MeterPerSec);
-    turningEncoder.setPositionConversionFactor(StaticConstants.ModuleConstants.PhysicalConstants.kTurningEncoderRot2Rad);
-    turningEncoder.setVelocityConversionFactor(StaticConstants.ModuleConstants.PhysicalConstants.kTurningEncoderRPM2RadPerSec);
-
-    turningPidController = new PIDController(ChangingConstants.DriveConstants.kPTurning, 0, 0);
-    turningPidController.enableContinuousInput(-Math.PI, Math.PI);
+    steerPidController = new PIDController(ChangingConstants.DriveConstants.kPTurning, 0, 0);
+    steerPidController.enableContinuousInput(-Math.PI, Math.PI);
 
     resetEncoders();
  }
 
   public double getDrivePosition() {
-    return driveMotor.getPosition().getValueAsDouble();
+      var DrivePosition = driveMotor.getPosition().getValueAsDouble() * 
+      StaticConstants.ModuleConstants.PhysicalConstants.kDriveEncoderRot2Meter;
+    return DrivePosition;
   }
 
-  public double getTurningPosition() {
-    return turningMotor.getPosition().getValueAsDouble();
+  public double getSteerPosition() {
+      var SteerPosition = steerMotor.getPosition().getValueAsDouble() *
+      StaticConstants.ModuleConstants.PhysicalConstants.kTurningEncoderRot2Rad;
+    return SteerPosition;
   }
 
   public double getDriveVelocity() {
-    return driveMotor.getVelocity().getValueAsDouble();
+      var DriveVelocity = driveMotor.getVelocity().getValueAsDouble() * 
+      StaticConstants.ModuleConstants.PhysicalConstants.kDriveEncoderRPM2MeterPerSec;
+    return DriveVelocity;
   }
 
-  public double getTurningVelocity() {
-    return turningMotor.getVelocity().getValueAsDouble();
+  public double getSteerVelocity() {
+      var SteerVelocity = steerMotor.getVelocity().getValueAsDouble() *
+      StaticConstants.ModuleConstants.PhysicalConstants.kTurningEncoderRPM2RadPerSec;
+    return SteerVelocity;
   }
 
-    // Figure out how to use the Cancoder
   public double getAbsoluteEncoderRad() {
-    double angle = absoluteEncoder.getVoltage() / RobotController.getVoltage5V();
+    double angle = absEncoder.getPosition().getValueAsDouble();
     angle *= 2.0 * Math.PI;
-    angle -= absoluteEncoderOffsetRad;
-    return angle * (absoluteEncoderReversed ? -1.0 : 1.0);
+    angle -= absEncoderOffsetRad;
+    return angle * (absEncoderReversed ? -1.0 : 1.0);
   }
-
 
   public void resetEncoders() {
     driveMotor.setPosition(0);
-    turningMotor.setPosition(getAbsoluteEncoderRad());
+    steerMotor.setPosition(getAbsoluteEncoderRad());
   }
 
   public SwerveModuleState getState() {
-    return new SwerveModuleState(getDriveVelocity(), new Rotation2d(getTurningPosition()));
+    return new SwerveModuleState(getDriveVelocity(), new Rotation2d(getSteerPosition()));
   }
 
-  public void setDesiredState(SwerveModuleState state) {
-    if (Math.abs(state.speedMetersPerSecond) < 0.001) {
+  public void setDesiredState(SwerveModuleState desiredState) {
+    if (Math.abs(desiredState.speedMetersPerSecond) < 0.001) {
       stop();
       return;
     }
-    state = SwerveModuleState.optimize(state, getState().angle);
-    driveMotor.set(state.speedMetersPerSecond / ChangingConstants.DriveConstants.kPhysicalMaxSpeedMetersPerSecond);
-    turningMotor.set(turningPidController.calculate(getTurningPosition(), state.angle.getRadians()));
-    SmartDashboard.putString("Swerve[" + absoluteEncoder.getChannel() + "] state", state.toString());
+    // Apply chassis angular offset to the desired state.
+    SwerveModuleState correctedDesiredState = new SwerveModuleState();
+    correctedDesiredState.speedMetersPerSecond = desiredState.speedMetersPerSecond;
+    correctedDesiredState.angle = desiredState.angle.plus(Rotation2d.fromRadians(absEncoderOffsetRad));
+
+    // Optimize the reference state to avoid spinning further than 90 degrees.
+    correctedDesiredState.optimize(new Rotation2d(absEncoder.getPosition().getValueAsDouble()));
+
+    driveMotor.set(desiredState.speedMetersPerSecond / 
+        StaticConstants.ModuleConstants.PhysicalConstants.kPhysicalMaxSpeedMetersPerSecond);
+    steerMotor.set(steerPidController.calculate(getSteerPosition(), 
+        desiredState.angle.getRadians()));
+
+
+    SmartDashboard.putString("Swerve[" + absEncoder.getDeviceID() + 
+        "] state", desiredState.toString());
   }
 
   public void stop() {
     driveMotor.set(0);
-    turningMotor.set(0);
+    steerMotor.set(0);
   }
 
+  public SwerveModulePosition getSwerveModulePosition() {
+    return new SwerveModulePosition(getDrivePosition(), new Rotation2d(getSteerPosition()));
+  }
 
   @Override
   public void periodic() {
