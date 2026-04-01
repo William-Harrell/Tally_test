@@ -49,7 +49,8 @@ public class RobotContainer {
    * joysticks}.
    */
   private void configureBindings() {
-    new JoystickButton(driverJoytick, 2).onTrue(new zeroHeading_hotfix());
+    new JoystickButton(driverJoytick, StaticConstants.ControllerConstants.kDriverZeroHeadingButtonIdx
+    ).onTrue(new zeroHeading_hotfix());
   }
 
   /**

@@ -23,14 +23,15 @@ public final class StaticConstants {
     public static final int kDriverXAxis = 0;
     public static final int kDriverRotAxis = 0;
     public static final int kDriverFieldOrientedButtonIdx = 0;
+    public static final int kDriverZeroHeadingButtonIdx = 2;
     public static final double kDeadband = 0.05;
   }
   
   public static final class ModuleConstants { 
     public static final double kTrackWidth = Units.inchesToMeters(10.0);
-        // Distance between right and left wheels                TODO: fill in
+        // Distance between right and left wheels   TODO: fill in
     public static final double kWheelBase = Units.inchesToMeters(10.0);
-        // Distance between front and back wheels                TODO: fill in
+        // Distance between front and back wheels   TODO: fill in
     public static final SwerveDriveKinematics kDriveKinematics = new SwerveDriveKinematics(
       new Translation2d(kWheelBase / 2, -kTrackWidth / 2),
       new Translation2d(kWheelBase / 2, kTrackWidth / 2),
