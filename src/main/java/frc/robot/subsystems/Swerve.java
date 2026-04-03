@@ -105,7 +105,8 @@ public class Swerve extends SubsystemBase {
       frontLeft.getSwerveModulePosition(),   
       frontRight.getSwerveModulePosition(), 
       backLeft.getSwerveModulePosition(),
-      backRight.getSwerveModulePosition()}, pose);
+      backRight.getSwerveModulePosition()}, 
+      pose);
   }
 
 
