@@ -12,7 +12,7 @@ public class ChangingConstants {
         
         public static final class PIDController {
                 //Steering function PID values to get to correct angle:
-            public static final double kPSteer = 0.5;
+            public static final double kPSteer = 0.0;
             public static final double kISteer = 0;
             public static final double kDSteer = 0;
         }
@@ -35,10 +35,10 @@ public class ChangingConstants {
                 // This TalonFX should be configured with a kP of 1, a kI of 0, 
                     //a kD of 10, and a kV of 2 on slot 0
                 // got from TalonFX configuration thingy, could be entirely wrong
-        public static final double kSteerP = 1;
+        public static final double kSteerP = 0;
         public static final double kSteerI = 0;
-        public static final double kSteerD = 10;
-        public static final double kSteerV = 2;
+        public static final double kSteerD = 0;
+        public static final double kSteerV = 0;
 
             //Teleop speeds:
         public static final double kTeleDriveMaxSpeedMetersPerSecond = 

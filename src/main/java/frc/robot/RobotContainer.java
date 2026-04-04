@@ -36,7 +36,7 @@ public class RobotContainer {
                 () -> !driverJoytick.getRawButton(StaticConstants.ControllerConstants.kDriverFieldOrientedButtonIdx)));
 
     // Configure the trigger bindings
-    configureBindings();
+    //configureBindings();
   }
 
   /**
@@ -48,11 +48,12 @@ public class RobotContainer {
    * PS4} controllers or {@link edu.wpi.first.wpilibj2.command.button.CommandJoystick Flight
    * joysticks}.
    */
+  /* 
   private void configureBindings() {
     new JoystickButton(driverJoytick, StaticConstants.ControllerConstants.kDriverZeroHeadingButtonIdx
     ).onTrue(new zeroHeading_hotfix());
   }
-
+  */
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.
    *
