@@ -43,8 +43,11 @@ public final class StaticConstants {
         public static final double kPhysicalMaxAngularSpeedRadiansPerSecond = 4 * Math.PI;
 
         public static final double kWheelDiameterMeters = Units.inchesToMeters(4);
-        public static final double kDriveMotorGearRatio = 1 / 5.8462; //find on SDS website
-        public static final double kSteerMotorGearRatio = 1 / 18.0; //find on SDS website
+        public static final double kDriveMotorGearRatio = 1 / 6.75; //find on SDS website
+          private static final double SteerGearRatioNUM = 150;
+          private static final double SteerGearRatioDOM = 7;
+          private static final double SteerGearRatio = SteerGearRatioNUM / SteerGearRatioDOM;
+        public static final double kSteerMotorGearRatio = SteerGearRatio;
         public static final double kDriveEncoderRot2Meter = kDriveMotorGearRatio * Math.PI * kWheelDiameterMeters;
         public static final double kSteerEncoderRot2Rad = kSteerMotorGearRatio * 2 * Math.PI;
         public static final double kDriveEncoderRPM2MeterPerSec = kDriveEncoderRot2Meter / 60;
@@ -58,36 +61,36 @@ public final class StaticConstants {
 
     public static final class CanIDs {
       // Random CAN IDs TODO: fill in
-      public static final int kPigeon2Port = 0;
+      public static final int kPigeon2Port = 13;
 
       // Front Left Module TODO: fill in
-      public static final int kFLDrivePort = 0;
-      public static final int kFLSteerPort = 0;
-      public static final int kFLabsEncoderPort = 0;
+      public static final int kFLDrivePort = 7;
+      public static final int kFLSteerPort = 9;
+      public static final int kFLabsEncoderPort = 8;
       public static final boolean kFLDriveEncoderReversed = false;
       public static final boolean kFLSteerEncoderReversed = false;
       public static final boolean kFLabsEncoderReversed = false;
 
       // Front Right Module TODO: fill in
-      public static final int kFRDrivePort = 0;
-      public static final int kFRSteerPort = 0;
-      public static final int kFRabsEncoderPort = 0;
+      public static final int kFRDrivePort = 4;
+      public static final int kFRSteerPort = 6;
+      public static final int kFRabsEncoderPort = 5;
       public static final boolean kFRDriveEncoderReversed = false;
       public static final boolean kFRSteerEncoderReversed = false;
       public static final boolean kFRabsEncoderReversed = false;
 
       // Back Left Module TODO: fill in
-      public static final int kBLDrivePort = 0;
-      public static final int kBLSteerPort = 0;
-      public static final int kBLabsEncoderPort = 0;
+      public static final int kBLDrivePort = 10;
+      public static final int kBLSteerPort = 12;
+      public static final int kBLabsEncoderPort = 11;
       public static final boolean kBLDriveEncoderReversed = false;
       public static final boolean kBLSteerEncoderReversed = false;
       public static final boolean kBLabsEncoderReversed = false;
 
       // Back Right Module TODO: fill in
-      public static final int kBRDrivePort = 0;
-      public static final int kBRSteerPort = 0;
-      public static final int kBRabsEncoderPort = 0;
+      public static final int kBRDrivePort = 1;
+      public static final int kBRSteerPort = 3;
+      public static final int kBRabsEncoderPort = 2;
       public static final boolean kBRDriveEncoderReversed = false;
       public static final boolean kBRSteerEncoderReversed = false;
       public static final boolean kBRabsEncoderReversed = false;
